@@ -18,8 +18,8 @@ exports.getCars = async (req, reply) => {
 exports.getSingleCar = async (req, reply) => {
   try {
     const id = req.body.id
-    const beer = await Car.findById(id)
-    return beer
+    const car = await Car.findById(id)
+    return car
   } catch (err) {
     throw boom.boomify(err)
   }
