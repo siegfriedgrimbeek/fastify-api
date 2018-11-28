@@ -17,7 +17,7 @@ exports.getCars = async (req, reply) => {
 // Get single car by ID
 exports.getSingleCar = async (req, reply) => {
   try {
-    const id = req.body.id
+    const id = req.params.id
     const car = await Car.findById(id)
     return car
   } catch (err) {
@@ -38,8 +38,9 @@ exports.addCar = async (req, reply) => {
 // Update an existing car
 exports.updateCar = async (req, reply) => {
   try {
+    const id = req.params.id
     const car = req.body
-    const { id, ...updateData } = car
+    const { ...updateData } = car
     const update = await Car.findByIdAndUpdate(id, updateData, { new: true })
     return update
   } catch (err) {
@@ -50,7 +51,7 @@ exports.updateCar = async (req, reply) => {
 // Delete a car
 exports.deleteCar = async (req, reply) => {
   try {
-    const id = req.body.id
+    const id = req.params.id
     const car = await Car.findByIdAndRemove(id)
     return car
   } catch (err) {

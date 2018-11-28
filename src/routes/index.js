@@ -12,7 +12,7 @@ const routes = [
   },
   {
     method: 'GET',
-    url: '/api/cars/car',
+    url: '/api/cars/:id',
     handler: carController.getSingleCar
   },
   {
@@ -23,12 +23,12 @@ const routes = [
   },
   {
     method: 'PUT',
-    url: '/api/cars',
+    url: '/api/cars/:id',
     handler: carController.updateCar
   },
   {
     method: 'DELETE',
-    url: '/api/cars',
+    url: '/api/cars/:id',
     handler: carController.deleteCar
   }
 ]
