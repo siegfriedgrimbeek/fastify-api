@@ -2,7 +2,7 @@
 const carController = require('../controllers/carController')
 
 // Import Swagger documentation
-const documentation = require('./documentation/carApi')
+// const documentation = require('./documentation/carApi')
 
 const routes = [
   {
@@ -19,7 +19,7 @@ const routes = [
     method: 'POST',
     url: '/api/cars',
     handler: carController.addCar,
-    schema: documentation.addCarSchema
+    // schema: documentation.addCarSchema
   },
   {
     method: 'PUT',
