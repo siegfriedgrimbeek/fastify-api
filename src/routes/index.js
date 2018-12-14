@@ -1,11 +1,6 @@
-// Car routes
+// Import routes
 const carRoutes = require('./carRoutes')
 
-// Import Swagger documentation
-// const documentation = require('./documentation/carApi')
-
-const routes = [
+module.exports = [
   ...carRoutes
 ]
-
-module.exports = routes
