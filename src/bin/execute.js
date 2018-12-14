@@ -46,7 +46,7 @@ inquirer.prompt(STEPS)
       }
     };
     for (let key in targets) {
-      // createDirectoryContents(key, targets[key]);
+      createDirectoryContents(key, targets[key]);
     };
     // change route index
     changeRouteIndex();
