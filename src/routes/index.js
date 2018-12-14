@@ -1,6 +1,8 @@
 // Import routes
+const bookRoutes = require('./book.routes')
 const carRoutes = require('./car.routes')
 
 module.exports = [
-  ...carRoutes
+...bookRoutes,
+...carRoutes
 ]
