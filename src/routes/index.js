@@ -8,28 +8,28 @@ const routes = [
   {
     method: 'GET',
     url: '/api/cars',
-    handler: carController.getCars
+    handler: carController['car'].list
   },
   {
     method: 'GET',
     url: '/api/cars/:id',
-    handler: carController.getSingleCar
+    handler: carController['car'].detail
   },
   {
     method: 'POST',
     url: '/api/cars',
-    handler: carController.addCar,
+    handler: carController['car'].new,
     // schema: documentation.addCarSchema
   },
   {
     method: 'PUT',
     url: '/api/cars/:id',
-    handler: carController.updateCar
+    handler: carController['car'].update
   },
   {
     method: 'DELETE',
     url: '/api/cars/:id',
-    handler: carController.deleteCar
+    handler: carController['car'].delete
   }
 ]
 

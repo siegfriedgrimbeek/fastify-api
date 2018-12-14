@@ -4,9 +4,9 @@ exports.controllerGenerate = (model) => {
   
   // Get Data Models
   let obj = {};
-  obj[model] = require('../models/' + model)
+  obj[model] = require('../../models/' + model)
   
-  return exports[model] = {
+  return {
     list: async (req, reply) => {
       try {
         const cars = await obj[model].find()
