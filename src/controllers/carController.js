@@ -1,12 +1,8 @@
-// // External Dependancies
-// const boom = require('boom')
+const constructor = require('../core/base/controller')
+let { actions, boom, model } = constructor('Car')
 
-// // Get Data Models
-// const Car = require('../models/Car')
-
-const obj = require('../core/base/controller')
-let { boom, model, actions } = obj.controllerGenerate('Car')
-
-//additional actions here
+/**
+ * Adding new action here
+ */
 
 module.exports = actions

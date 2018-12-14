@@ -1,4 +1,4 @@
-exports.routeGenerate = (model) => {
+module.exports = (model) => {
   // Import our Controllers
   const controller = require(`../../controllers/${model}Controller`)
   // Define url

@@ -1,8 +1,10 @@
 // Import Swagger documentation
 // const documentation = require('./documentation/carApi')
-const obj = require('../core/base/route')
-let { controller, uri, routes } = obj.routeGenerate('car')
+const router = require('../core/base/route')
+let { controller, uri, routes } = router('car')
 
-// new route here
+/**
+ * Adding new route here
+ */
 
 module.exports = routes

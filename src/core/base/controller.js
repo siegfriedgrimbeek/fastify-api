@@ -1,4 +1,4 @@
-exports.controllerGenerate = (model) => {
+module.exports = (model) => {
   // External Dependancies
   const boom = require('boom')
   
