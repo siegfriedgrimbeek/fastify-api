@@ -10,6 +10,13 @@ module.exports = (model) => {
     boom: boom,
     model: obj[model],
     actions: {
+      test: async (req, reply) => {
+        try {
+          return `${model} works`
+        } catch (err) {
+          throw boom.boomify(err)
+        }
+      },
       index: async (req, reply) => {
         try {
           const cars = await obj[model].find()

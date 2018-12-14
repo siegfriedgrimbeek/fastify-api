@@ -30,7 +30,7 @@ inquirer.prompt(STEPS)
     const targets = {
       model: {
         dir: `${srcDir}models`,
-        fileName: `${model}.model.js`,
+        fileName: `${modelName}.js`,
         name: modelName
       },
       controller: {

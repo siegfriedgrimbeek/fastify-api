@@ -14,6 +14,11 @@ module.exports = (model) => {
       },
       {
         method: 'GET',
+        url: `/api/${uri}/test`,
+        handler: controller.test
+      },
+      {
+        method: 'GET',
         url: `/api/${uri}/:id`,
         handler: controller.detail
       },
