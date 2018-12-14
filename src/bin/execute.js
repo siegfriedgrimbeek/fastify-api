@@ -15,7 +15,7 @@ const TEMPLATES = fs.readdirSync(`${templateDir}`);
 
 const QUESTIONS = [
   {
-    name: 'project-name',
+    name: 'model',
     type: 'input',
     message: 'Enter your model:',
     validate: function (input) {
@@ -43,8 +43,8 @@ inquirer.prompt(QUESTIONS)
         fileName: `${model}.controller.js`,
       },
       route: {
-        dir: `${srcDir}models`,
-        fileName: `${model}.route.js`,
+        dir: `${srcDir}routes`,
+        fileName: `${model}.routes.js`,
       }
     };
     for (let key in targets) {
