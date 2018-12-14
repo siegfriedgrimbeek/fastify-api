@@ -56,9 +56,6 @@ inquirer.prompt(QUESTIONS)
 
 function createDirectoryContents (fileName, targetDirs) {
   const origFilePath = `${templateDir}${fileName}.js`;
-  // const filesToCreate = fs.readdirSync(templateDir);
-  // const origFilePath = `${templatePath}/${file}`;
-  // get stats about the current file
   const stats = fs.statSync(origFilePath);
 
   if (stats.isFile()) {
