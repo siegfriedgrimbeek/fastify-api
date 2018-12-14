@@ -1,5 +1,5 @@
 // Import routes
-const carRoutes = require('./carRoutes')
+const carRoutes = require('./car.routes')
 
 module.exports = [
   ...carRoutes

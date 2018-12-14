@@ -22,7 +22,7 @@ const QUESTIONS = [
       if (/^([A-Za-z])+$/.test(input)) {
         return true;
       } else {
-        return 'Project name may only include letters.';
+        return 'Model name may only include letters.';
       }
     }
   }
@@ -36,15 +36,15 @@ inquirer.prompt(QUESTIONS)
     const targets = {
       model: {
         dir: `${srcDir}models`,
-        fileName: `${model}.model.js`,
+        fileName: `${model}.model.js`
       },
       controller: {
         dir: `${srcDir}controllers`,
-        fileName: `${model}.controller.js`,
+        fileName: `${model}.controller.js`
       },
       route: {
         dir: `${srcDir}routes`,
-        fileName: `${model}.routes.js`,
+        fileName: `${model}.routes.js`
       }
     };
     for (let key in targets) {
@@ -60,6 +60,9 @@ function createDirectoryContents (fileName, targetDirs) {
 
   if (stats.isFile()) {
     const contents = fs.readFileSync(origFilePath, 'utf8');
+    // contents = contents.replace(/__MODEL__/g, 'replacement');
+    
+    // console.log(contents);
     const writePath = `${targetDirs['dir']}/${targetDirs['fileName']}`;
     fs.writeFileSync(writePath, contents, 'utf8');
   } else if (stats.isDirectory()) {

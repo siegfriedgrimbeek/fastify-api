@@ -1,6 +1,6 @@
 module.exports = (model) => {
   // Import our Controllers
-  const controller = require(`../../controllers/${model}Controller`)
+  const controller = require(`../../controllers/${model}.controller`)
   // Define url
   const uri = `${model}s`;
   return {
