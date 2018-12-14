@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/nodemon/bin/nodemon.js ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "new": "node ./src/bin/execute.js"
+  },
+  "bin": {
+    "ns": "node ./src/bin/execute.js"
   },
   "author": "Siegfried Grimbeek <siegfried.grimbeek@gmail.com> (www.siegfriedgrimbeek.co.za)",
   "license": "ISC",
@@ -14,6 +18,8 @@
     "fastify": "^1.13.0",
     "fastify-mongodb": "^0.9.1",
     "fastify-swagger": "^0.15.3",
+    "fs": "0.0.1-security",
+    "inquirer": "^6.2.1",
     "mongoose": "^5.3.14",
     "nodemon": "^1.18.7"
   }
