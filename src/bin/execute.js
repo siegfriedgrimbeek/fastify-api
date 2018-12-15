@@ -7,7 +7,7 @@ const fs = require('fs');
 const projectDir = process.cwd();
 const srcDir = `${projectDir}/src/`;
 const templateDir = `${srcDir}core/generator/templates/`;
-const routeDir = `${srcDir}/routes/`;
+const routeDir = `${srcDir}routes/`;
 
 const STEPS = [
   {
@@ -18,7 +18,7 @@ const STEPS = [
       if (/^([a-z])+$/.test(input)) {
         return true;
       } else {
-        return 'Model name may only include letters.';
+        return 'Model name may only include lower letters.';
       }
     }
   }
@@ -26,6 +26,7 @@ const STEPS = [
 
 inquirer.prompt(STEPS)
   .then((answers) => {
+    let msgs = [];
     const model = answers['model'];
     const modelName = kebabToUpperCamel(model);
     const targets = {
@@ -45,38 +46,23 @@ inquirer.prompt(STEPS)
         name: model
       }
     };
+    msgs.push(`
+    \nCompleted!!!
+    \nFile Added:
+    `);
     for (let key in targets) {
-      createDirectoryContents(key, targets[key]);
-    };
+      const newFile = createDirectoryContents(key, targets[key]);
+      msgs.push(newFile);
+    }; 
     // change route index
-    changeRouteIndex();
+    const changedFile = changeRouteIndex();
+    msgs.push(`------------------------------------
+    \nFile Changeds:
+    `);
+    msgs.push(changedFile);
+    console.log(msgs.join('\n'));
   }
 );
-
-changeRouteIndex = () => {
-  const routes = fs.readdirSync(routeDir);
-  let partOfFile = [];
-  let routeName = '';
-  let routeFile = '';
-  let contentRequires = [];
-  let contentRoutes = [];
-  routes.forEach((file) => {
-    const origFilePath = `${routeDir}${file}`;
-    // get stats about the current file
-    const stats = fs.statSync(origFilePath);
-    if (stats.isFile() && file !== 'index.js') {
-      partOfFile = file.split('.');
-      routeName = kebabToCamel(`${partOfFile[0]}-${partOfFile[1]}`);
-      routeFile = `${partOfFile[0]}.${partOfFile[1]}`;
-      contentRequires.push(`const ${routeName} = require('./${routeFile}')`);
-      contentRoutes.push(`...${routeName}`);
-    }
-  });
-  let contents = fs.readFileSync(`${templateDir}routes.js`, 'utf8');
-  contents = contents.replace(/__REQUIRES__/g, contentRequires.join('\n'));
-  contents = contents.replace(/__ROUTES__/g, contentRoutes.join(',\n'));
-  fs.writeFileSync(`${routeDir}index.js`, contents, 'utf8');
-} 
 
 kebabToCamel = (string) => {
   return string = string.replace(/-([a-z])/g, (g) => {
@@ -101,9 +87,36 @@ createDirectoryContents = (fileName, targetDirs) => {
     
     const writePath = `${targetDirs['dir']}/${targetDirs['fileName']}`;
     fs.writeFileSync(writePath, contents, 'utf8');
+    return writePath;
   } else if (stats.isDirectory()) {
     // fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
     // // recursive call
     // createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`);
   }
 }
+
+changeRouteIndex = () => {
+  const routes = fs.readdirSync(routeDir);
+  let partOfFile = [];
+  let routeName = '';
+  let routeFile = '';
+  let contentRequires = [];
+  let contentRoutes = [];
+  routes.forEach((file) => {
+    const origFilePath = `${routeDir}${file}`;
+    // get stats about the current file
+    const stats = fs.statSync(origFilePath);
+    if (stats.isFile() && file !== 'index.js') {
+      partOfFile = file.split('.');
+      routeName = kebabToCamel(`${partOfFile[0]}-${partOfFile[1]}`);
+      routeFile = `${partOfFile[0]}.${partOfFile[1]}`;
+      contentRequires.push(`const ${routeName} = require('./${routeFile}')`);
+      contentRoutes.push(`...${routeName}`);
+    }
+  });
+  let contents = fs.readFileSync(`${templateDir}routes.js`, 'utf8');
+  contents = contents.replace(/__REQUIRES__/g, contentRequires.join('\n'));
+  contents = contents.replace(/__ROUTES__/g, contentRoutes.join(',\n'));
+  fs.writeFileSync(`${routeDir}index.js`, contents, 'utf8');
+  return `${routeDir}index.js`;
+} 
