@@ -9,7 +9,7 @@
     "new": "node ./src/bin/execute.js"
   },
   "bin": {
-    "ns": "node ./src/bin/execute.js"
+    "ns": "./src/bin/execute.js"
   },
   "author": "Siegfried Grimbeek <siegfried.grimbeek@gmail.com> (www.siegfriedgrimbeek.co.za)",
   "license": "ISC",
