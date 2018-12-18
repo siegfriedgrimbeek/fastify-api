@@ -36,7 +36,8 @@ module.exports = (model) => {
       },
       new: async (req, reply) => {
         try {
-          const car = new Car(req.body)
+          const objectModel = window[model]
+          const car = new objectModel(req.body)
           return obj[model].save()
         } catch (err) {
           throw boom.boomify(err)
