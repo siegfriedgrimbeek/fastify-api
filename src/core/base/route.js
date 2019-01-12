@@ -18,36 +18,36 @@ module.exports = (model, isUncountable = false) => {
     routes: [
       {
         method: 'GET',
-        url: `/api/${routeName}`,
+        url: `/${routeName}`,
         handler: handler.index,
         schema: schema.index || null
       },
       {
         method: 'GET',
-        url: `/api/${routeName}/test`,
+        url: `/${routeName}/test`,
         handler: handler.test
       },
       {
         method: 'GET',
-        url: `/api/${routeName}/:id`,
+        url: `/${routeName}/:id`,
         handler: handler.read,
         schema: schema.read || null
       },
       {
         method: 'POST',
-        url: `/api/${routeName}`,
+        url: `/${routeName}`,
         handler: handler.create,
         schema: schema.create || null
       },
       {
         method: 'PUT',
-        url: `/api/${routeName}/:id`,
+        url: `/${routeName}/:id`,
         handler: handler.update,
         schema: schema.update || null
       },
       {
         method: 'DELETE',
-        url: `/api/${routeName}/:id`,
+        url: `/${routeName}/:id`,
         handler: handler.delete,
         schema: schema.delete || null
       }
