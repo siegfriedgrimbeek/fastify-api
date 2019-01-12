@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/nodemon/bin/nodemon.js ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "new": "node ./src/bin/execute.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {
     "ns": "./src/bin/execute.js"

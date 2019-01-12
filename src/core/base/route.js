@@ -4,7 +4,6 @@ module.exports = (model, isUncountable = false) => {
   const documentation = require(`../../routes/documentation/${model}.schema`)
   // Define url
   const uri = isUncountable ? `${model}` : `${model}s`;
-  console.log(documentation)
   const schema = documentation[`${model}Schema`]
   return {
     controller: controller,
@@ -24,14 +23,14 @@ module.exports = (model, isUncountable = false) => {
       {
         method: 'GET',
         url: `/api/${uri}/:id`,
-        handler: controller.detail,
-        schema: schema.detail || null
+        handler: controller.read,
+        schema: schema.read || null
       },
       {
         method: 'POST',
         url: `/api/${uri}`,
-        handler: controller.new,
-        schema: schema.new || null
+        handler: controller.create,
+        schema: schema.create || null
       },
       {
         method: 'PUT',

@@ -3,42 +3,40 @@ module.exports = (model) => {
   const boom = require('boom')
   
   // Get Data Models
-  let obj = {};
-  obj[model] = require(`../../models/${model}.model`)
+  const dataModel = require(`../../models/${model}.model`)
   
   return {
     boom: boom,
-    model: obj[model],
+    model: dataModel,
     actions: {
       test: async (req, reply) => {
         try {
-          return `${model} works`
+          return `${model} works!!!`
         } catch (err) {
           throw boom.boomify(err)
         }
       },
       index: async (req, reply) => {
         try {
-          const cars = await obj[model].find()
-          return cars
+          const data = await dataModel.find()
+          return data
         } catch (err) {
           throw boom.boomify(err)
         }
       },
-      detail: async (req, reply) => {
+      create: async (req, reply) => {
+        try {
+          const newObj = new dataModel(req.body)
+          return newObj.save()
+        } catch (err) {
+          throw boom.boomify(err)
+        }
+      },
+      read: async (req, reply) => {
         try {
           const id = req.params.id
-          const car = await obj[model].findById(id)
-          return car
-        } catch (err) {
-          throw boom.boomify(err)
-        }
-      },
-      new: async (req, reply) => {
-        try {
-          const objectModel = window[model]
-          const car = new objectModel(req.body)
-          return obj[model].save()
+          const obj = await dataModel.findById(id)
+          return obj
         } catch (err) {
           throw boom.boomify(err)
         }
@@ -46,10 +44,10 @@ module.exports = (model) => {
       update: async (req, reply) => {
         try {
           const id = req.params.id
-          const car = req.body
-          const { ...updateData } = car
-          const update = await obj[model].findByIdAndUpdate(id, updateData, { new: true })
-          return update
+          const obj = req.body
+          const { ...updateData } = obj
+          const updatedObj = await dataModel.findByIdAndUpdate(id, updateData, { new: true })
+          return updatedObj
         } catch (err) {
           throw boom.boomify(err)
         }
@@ -57,8 +55,8 @@ module.exports = (model) => {
       delete: async (req, reply) => {
         try {
           const id = req.params.id
-          const car = await obj[model].findByIdAndRemove(id)
-          return car
+          const obj = await dataModel.findByIdAndRemove(id)
+          return obj
         } catch (err) {
           throw boom.boomify(err)
         }
