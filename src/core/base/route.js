@@ -1,8 +1,11 @@
-module.exports = (model) => {
+module.exports = (model, isUncountable = false) => {
   // Import our Controllers
   const controller = require(`../../controllers/${model}.controller`)
+  const documentation = require(`../../routes/documentation/${model}.schema`)
   // Define url
-  const uri = `${model}s`;
+  const uri = isUncountable ? `${model}` : `${model}s`;
+  console.log(documentation)
+  const schema = documentation[`${model}Schema`]
   return {
     controller: controller,
     uri: uri,
@@ -10,7 +13,8 @@ module.exports = (model) => {
       {
         method: 'GET',
         url: `/api/${uri}`,
-        handler: controller.index
+        handler: controller.index,
+        schema: schema.index || null
       },
       {
         method: 'GET',
@@ -20,23 +24,26 @@ module.exports = (model) => {
       {
         method: 'GET',
         url: `/api/${uri}/:id`,
-        handler: controller.detail
+        handler: controller.detail,
+        schema: schema.detail || null
       },
       {
         method: 'POST',
         url: `/api/${uri}`,
         handler: controller.new,
-        // schema: documentation.addCarSchema
+        schema: schema.new || null
       },
       {
         method: 'PUT',
         url: `/api/${uri}/:id`,
-        handler: controller.update
+        handler: controller.update,
+        schema: schema.update || null
       },
       {
         method: 'DELETE',
         url: `/api/${uri}/:id`,
-        handler: controller.delete
+        handler: controller.delete,
+        schema: schema.delete || null
       }
     ]
   }

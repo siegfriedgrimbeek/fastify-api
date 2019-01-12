@@ -1,5 +1,5 @@
 const constructor = require('../core/base/controller')
-let { actions, boom, model } = constructor('Book')
+let { actions, boom, model } = constructor('book')
 
 /**
  * Adding new action here

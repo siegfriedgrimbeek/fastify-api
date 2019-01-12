@@ -4,7 +4,7 @@ module.exports = (model) => {
   
   // Get Data Models
   let obj = {};
-  obj[model] = require(`../../models/${model}`)
+  obj[model] = require(`../../models/${model}.model`)
   
   return {
     boom: boom,
