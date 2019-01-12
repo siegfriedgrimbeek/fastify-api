@@ -9,45 +9,45 @@ module.exports = (model, isUncountable = false) => {
   const schema = documentation[`${model}Schema`]
 
   // Define url
-  const uri = isUncountable ? `${model}` : `${model}s`;
+  const routeName = isUncountable ? `${model}` : `${model}s`;
 
   return {
     handler: handler,
     schema: schema,
-    uri: uri,
+    routeName: routeName,
     routes: [
       {
         method: 'GET',
-        url: `/api/${uri}`,
+        url: `/api/${routeName}`,
         handler: handler.index,
         schema: schema.index || null
       },
       {
         method: 'GET',
-        url: `/api/${uri}/test`,
+        url: `/api/${routeName}/test`,
         handler: handler.test
       },
       {
         method: 'GET',
-        url: `/api/${uri}/:id`,
+        url: `/api/${routeName}/:id`,
         handler: handler.read,
         schema: schema.read || null
       },
       {
         method: 'POST',
-        url: `/api/${uri}`,
+        url: `/api/${routeName}`,
         handler: handler.create,
         schema: schema.create || null
       },
       {
         method: 'PUT',
-        url: `/api/${uri}/:id`,
+        url: `/api/${routeName}/:id`,
         handler: handler.update,
         schema: schema.update || null
       },
       {
         method: 'DELETE',
-        url: `/api/${uri}/:id`,
+        url: `/api/${routeName}/:id`,
         handler: handler.delete,
         schema: schema.delete || null
       }
