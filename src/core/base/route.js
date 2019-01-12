@@ -1,47 +1,54 @@
 module.exports = (model, isUncountable = false) => {
-  // Import our Controllers
-  const controller = require(`../../controllers/${model}.controller`)
+
+  // Import Controllers
+  const handler = require(`../../controllers/${model}.controller`)
+
+  // Import Swagger documentation
   const documentation = require(`../../routes/documentation/${model}.schema`)
+  // Get Schema
+  const schema = documentation[`${model}Schema`]
+
   // Define url
   const uri = isUncountable ? `${model}` : `${model}s`;
-  const schema = documentation[`${model}Schema`]
+
   return {
-    controller: controller,
+    handler: handler,
+    schema: schema,
     uri: uri,
     routes: [
       {
         method: 'GET',
         url: `/api/${uri}`,
-        handler: controller.index,
+        handler: handler.index,
         schema: schema.index || null
       },
       {
         method: 'GET',
         url: `/api/${uri}/test`,
-        handler: controller.test
+        handler: handler.test
       },
       {
         method: 'GET',
         url: `/api/${uri}/:id`,
-        handler: controller.read,
+        handler: handler.read,
         schema: schema.read || null
       },
       {
         method: 'POST',
         url: `/api/${uri}`,
-        handler: controller.create,
+        handler: handler.create,
         schema: schema.create || null
       },
       {
         method: 'PUT',
         url: `/api/${uri}/:id`,
-        handler: controller.update,
+        handler: handler.update,
         schema: schema.update || null
       },
       {
         method: 'DELETE',
         url: `/api/${uri}/:id`,
-        handler: controller.delete,
+        handler: handler.delete,
         schema: schema.delete || null
       }
     ]
