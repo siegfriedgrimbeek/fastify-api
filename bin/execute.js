@@ -8,7 +8,8 @@ const shell = require('shelljs');
 
 const projectDir = process.cwd();
 const srcDir = `${projectDir}/src/`;
-const templateDir = `${projectDir}/bin/templates/`;
+const templateCrudDir = `${projectDir}/bin/templates/crud/`;
+const templateNewDir = `${projectDir}/bin/templates/new/`;
 const routeDir = `${srcDir}routes/`;
 let folderDir = '';
 
@@ -17,20 +18,43 @@ let notification = {
   modified: []
 };
 
-const CREATING_MODEL_STEPS = [
-  {
+const INQUIRER_STEPS = {
+  model: {
     name: 'model',
     type: 'input',
-    message: 'Enter your model:',
+    message: 'Enter model name:',
     validate: function (input) {
-      if (/^[a-z]+-?[a-z]+$/.test(input)) {
+      if (/^[a-z]+(-[a-z]+)*$/g.test(input)) {
         return true;
       } else {
         return 'Model name may only include lower letters or kebab-case.';
-        // return 'Model name may only include lower letters.';
       }
     }
   },
+  controller: {
+    name: 'name',
+    type: 'input',
+    message: 'Enter your controller:',
+    validate: function (input) {
+      if (/^([a-z]+(-[a-z]+)*)+(\/([a-z]+(-[a-z]+)*))*$/g.test(input)) {
+        return true;
+      } else {
+        return 'Controller name may only include lower letters or kebab-case.';
+      }
+    }
+  },
+  route: (name) => {
+    return {
+      name: 'route',
+      type: 'list',
+      message: 'Choise the right route?',
+      choices: [`${name}s`, name]
+    }
+  }
+};
+
+const CREATING_MODEL_STEPS = [
+  INQUIRER_STEPS.model,
   {
     name: 'hasRouting',
     type: 'confirm',
@@ -39,17 +63,12 @@ const CREATING_MODEL_STEPS = [
 ];
 
 const CREATING_CONTROLLER_STEPS = [
+  INQUIRER_STEPS.controller,
   {
-    name: 'name',
-    type: 'input',
-    message: 'Enter your controller:',
-    validate: function (input) {
-      if (/^[a-z]+\/?[a-z]+$/.test(input)) {
-        return true;
-      } else {
-        return 'Controller name may only include lower letters or kebab-case.';
-      }
-    }
+    name: 'hasAction',
+    type: 'confirm',
+    message: 'Init CRUD actions and routing?',
+    default: false
   }
 ];
 
@@ -58,16 +77,13 @@ generatingModel = () => {
     const modelName = answers['model'];
     if (answers['hasRouting']) {
       const QUESTIONS = [
-        {
-          name: 'route',
-          type: 'list',
-          message: 'Choise the right route?',
-          choices: [`${modelName}s`, modelName]
-        }
+        INQUIRER_STEPS.route(modelName)
       ];
       inquirer.prompt(QUESTIONS).then((choices) => {
         processFiles(modelName, choices['route'])
       });
+    } else {
+      processFiles(modelName, choices['route'])
     }
   });
 }
@@ -75,7 +91,18 @@ generatingModel = () => {
 generatingController = () => {
   inquirer.prompt(CREATING_CONTROLLER_STEPS).then((answers) => {
     const name = answers['name'];
-    processController(name);
+    const QUESTIONS = [
+      INQUIRER_STEPS.route(name)
+    ];
+    inquirer.prompt(QUESTIONS).then((choices) => {
+      if (answers['hasAction']) {
+        inquirer.prompt(INQUIRER_STEPS.model).then((choices) => {
+          processController(name);
+        });
+      } else {
+        processController(name);
+      }
+    });
   });
 }
 
@@ -95,7 +122,7 @@ processController = (str) => {
     controllerName = arr[length - 1];
     folderName = str.replace(`/${controllerName}`, '');
   }
-  shell.mkdir('-p', `${srcDir}${folderName}`);
+  // shell.mkdir('-p', `${srcDir}${folderName}`);
 }
 
 processFiles = (model, route) => {
@@ -103,29 +130,39 @@ processFiles = (model, route) => {
   let msgs = [];
   const modelName = kebabToUpperCamel(model);
   const schemaName = kebabToCamel(model);
-  const targets = {
+  let targets = {};
+  const modelTarget = {
     model: {
-      dir: `${srcDir}models`,
+      dir: `${srcDir}models${folderDir}`,
       fileName: `${model}.model.js`,
       name: modelName
-    },
+    }
+  };
+  const actionTarget = {
     controller: {
-      dir: `${srcDir}controllers`,
+      dir: `${srcDir}controllers${folderDir}`,
       fileName: `${model}.controller.js`,
       name: model
     },
     route: {
-      dir: `${srcDir}routes`,
+      dir: `${srcDir}routes${folderDir}`,
       fileName: `${model}.route.js`,
       name: model,
       isUncountable: model === route
     },
     schema: {
-      dir: `${srcDir}routes/documentation`,
+      dir: `${srcDir}routes/documentation${folderDir}`,
       fileName: `${model}.schema.js`,
       name: schemaName
     }
-  };
+  }
+  if (isModelOnly) {
+    targets = modelTarget;
+  } else if (isActionOnly) {
+    targets = actionTarget;
+  } else {
+    targets = { ...modelTarget, ...actionTarget };
+  }
   msgs.push(`
   \nCompleted!!!
   \nFiles Added:
@@ -162,9 +199,7 @@ createDirectoryContents = (fileName, targetDirs) => {
       return writePath;
     }
   } else if (stats.isDirectory()) {
-    // fs.mkdirSync(`${CURR_DIR}/${newProjectPath}/${file}`);
-    // // recursive call
-    // createDirectoryContents(`${templatePath}/${file}`, `${newProjectPath}/${file}`);
+    //
   }
 }
 
