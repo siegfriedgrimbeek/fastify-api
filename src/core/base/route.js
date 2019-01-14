@@ -1,10 +1,10 @@
 module.exports = (model, isUncountable = false) => {
 
   // Import Controllers
-  const handler = require(`../../controllers/${model}.controller`)
+  const handler = require(`@controllers/${model}.controller`)
 
   // Import Swagger documentation
-  const documentation = require(`../../routes/documentation/${model}.schema`)
+  const documentation = require(`@routes/documentation/${model}.schema`)
   // Get Schema
   const schema = documentation[`${model}Schema`]
 

@@ -3,7 +3,7 @@ module.exports = (model) => {
   const boom = require('boom')
   
   // Get Data Models
-  const dataModel = require(`../../models/${model}.model`)
+  const dataModel = require(`@models/${model}.model`)
   
   return {
     boom: boom,
