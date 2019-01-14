@@ -4,6 +4,7 @@
  */
 const inquirer = require('inquirer');
 const fs = require('fs');
+const shell = require('shelljs');
 
 const projectDir = process.cwd();
 const srcDir = `${projectDir}/src/`;
@@ -78,8 +79,8 @@ generatingController = () => {
   });
 }
 
-// generatingController();
-generatingModel();
+generatingController();
+// generatingModel();
 
 processController = (str) => {
   let hasFolder = false;
@@ -94,7 +95,7 @@ processController = (str) => {
     controllerName = arr[length - 1];
     folderName = str.replace(`/${controllerName}`, '');
   }
-  fs.mkdirSync(`${srcDir}${str}`);
+  shell.mkdir('-p', `${srcDir}${folderName}`);
 }
 
 processFiles = (model, route) => {
