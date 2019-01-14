@@ -27,6 +27,9 @@
     "shelljs": "^0.8.3"
   },
   "_moduleAliases": {
-    "@core": "./src/core"
+    "@core": "./src/core",
+    "@controller": "./src/controllers",
+    "@model": "./src/models",
+    "@route": "./src/routes"
   }
 }
