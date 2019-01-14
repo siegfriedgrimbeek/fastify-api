@@ -1,3 +1,6 @@
+// Require the module alias
+require('module-alias/register')
+
 // Require the fastify framework and instantiate it
 const fastify = require('fastify')({
   logger: {

@@ -1,4 +1,4 @@
-const constructor = require('../core/base/controller')
+const constructor = require('@core/base/controller')
 let { actions } = constructor('book')
 
 /**
