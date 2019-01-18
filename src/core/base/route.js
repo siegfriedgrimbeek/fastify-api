@@ -1,53 +1,53 @@
-module.exports = (model, isUncountable = false) => {
+module.exports = (controller, isUncountable = false) => {
 
   // Import Controllers
-  const handler = require(`@controllers/${model}.controller`)
+  const handler = require(`@controllers/${controller}.controller`)
 
   // Import Swagger documentation
-  const documentation = require(`@routes/documentation/${model}.schema`)
+  const documentation = require(`@routes/documentation/${controller}.schema`)
   // Get Schema
-  const schema = documentation[`${model}Schema`]
+  const schema = documentation[`${controller}Schema`]
 
   // Define url
-  const routeName = isUncountable ? `${model}` : `${model}s`;
+  const route = isUncountable ? `${controller}` : `${controller}s`;
 
   return {
     handler: handler,
     schema: schema,
-    routeName: routeName,
+    route: route,
     routes: [
       {
         method: 'GET',
-        url: `/${routeName}`,
+        url: `/${route}`,
         handler: handler.index,
         schema: schema.index || null
       },
       {
         method: 'GET',
-        url: `/${routeName}/test`,
+        url: `/${route}/test`,
         handler: handler.test
       },
       {
         method: 'GET',
-        url: `/${routeName}/:id`,
+        url: `/${route}/:id`,
         handler: handler.read,
         schema: schema.read || null
       },
       {
         method: 'POST',
-        url: `/${routeName}`,
+        url: `/${route}`,
         handler: handler.create,
         schema: schema.create || null
       },
       {
         method: 'PUT',
-        url: `/${routeName}/:id`,
+        url: `/${route}/:id`,
         handler: handler.update,
         schema: schema.update || null
       },
       {
         method: 'DELETE',
-        url: `/${routeName}/:id`,
+        url: `/${route}/:id`,
         handler: handler.delete,
         schema: schema.delete || null
       }

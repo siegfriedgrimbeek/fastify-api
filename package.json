@@ -28,8 +28,8 @@
   },
   "_moduleAliases": {
     "@core": "./src/core",
-    "@controller": "./src/controllers",
-    "@model": "./src/models",
-    "@route": "./src/routes"
+    "@controllers": "./src/controllers",
+    "@models": "./src/models",
+    "@routes": "./src/routes"
   }
 }

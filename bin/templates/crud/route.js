@@ -1,4 +1,4 @@
-const router = require('../core/base/route')
+const router = require('@core/base/route')
 let { controller, uri, routes } = router('__MODEL__''__ISUNCOUNTABLE__')
 
 /**

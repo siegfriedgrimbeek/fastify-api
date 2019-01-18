@@ -11,16 +11,44 @@ const srcDir = `${projectDir}/src/`;
 const templateCrudDir = `${projectDir}/bin/templates/crud/`;
 const templateNewDir = `${projectDir}/bin/templates/new/`;
 const routeDir = `${srcDir}routes/`;
-let folderDir = '';
+
+/**
+ * generatingFolders item format
+ * {
+ *  name: string
+ * }
+ * 
+ * generatingFiles item format
+ * {
+ *  name: string
+ * }
+ */
+let todoList = {
+  generatingFiles: {
+    controller: null,
+    model: null,
+    route: null,
+    schema: null
+  }
+};
 
 let notification = {
   added: [],
   modified: []
 };
 
+let dataForGenerating = {
+  controllerName: '',
+  modelName: '',
+  routeName: '',
+  url: '',
+  folderName: '',
+  isUncountable: false
+};
+
 const INQUIRER_STEPS = {
   model: {
-    name: 'model',
+    name: 'name',
     type: 'input',
     message: 'Enter model name:',
     validate: function (input) {
@@ -45,7 +73,7 @@ const INQUIRER_STEPS = {
   },
   route: (name) => {
     return {
-      name: 'route',
+      name: 'name',
       type: 'list',
       message: 'Choise the right route?',
       choices: [`${name}s`, name]
@@ -56,151 +84,154 @@ const INQUIRER_STEPS = {
 const CREATING_MODEL_STEPS = [
   INQUIRER_STEPS.model,
   {
-    name: 'hasRouting',
+    name: 'hasAction',
     type: 'confirm',
     message: 'Init CRUD actions and routing?'
   }
 ];
 
 const CREATING_CONTROLLER_STEPS = [
-  INQUIRER_STEPS.controller,
-  {
-    name: 'hasAction',
-    type: 'confirm',
-    message: 'Init CRUD actions and routing?',
-    default: false
-  }
+  INQUIRER_STEPS.controller
 ];
 
-generatingModel = () => {
-  inquirer.prompt(CREATING_MODEL_STEPS).then((answers) => {
-    const modelName = answers['model'];
-    if (answers['hasRouting']) {
+newFileObj = (type, fileName) => {
+  let folderOfType = `${type}s`;
+  let objName = fileName;
+  if (type === 'schema') {
+    folderOfType = `routes/documentation`;
+    objName = kebabToCamel(fileName);
+  } else if (type === 'route') {
+    // objName = dataForGenerating.routeName
+  }
+  return {
+    dir: `${srcDir}${folderOfType}/${dataForGenerating.folderName}`,
+    fileName: `${fileName}.${type}.js`,
+    templateDir: dataForGenerating.templateDir || templateCrudDir,
+    name: objName,
+    type: type
+  }
+};
+
+newActions = (hasAction) => {
+  let newFiles = {
+    controller: newFileObj('controller', dataForGenerating.controllerName),
+    route: newFileObj('route', dataForGenerating.controllerName),
+    schema: newFileObj('schema', dataForGenerating.controllerName)
+  };
+  todoList.generatingFiles = { ...todoList.generatingFiles, ...newFiles };
+}
+
+generatingModel = async () => {
+  await inquirer.prompt(CREATING_MODEL_STEPS).then(async(model) => {
+    const modelName = model['model'];
+    // define data to create model file
+    todoList.generatingFiles.model = newObj('model', modelName);
+    if (model['hasAction']) {
       const QUESTIONS = [
         INQUIRER_STEPS.route(modelName)
       ];
-      inquirer.prompt(QUESTIONS).then((choices) => {
-        processFiles(modelName, choices['route'])
+      await inquirer.prompt(QUESTIONS).then((choices) => {
+        // define data to create controller file
+        dataForGenerating.controllerName = modelName;
+        // define data to create route file
+        dataForGenerating.routeName = modelName;
+        // define data to create schema file
+        dataForGenerating.schemaName = modelName;
+        newActions();
+        processFiles();
       });
-    } else {
-      processFiles(modelName, choices['route'])
     }
   });
+  // do main duty
 }
 
-generatingController = () => {
-  inquirer.prompt(CREATING_CONTROLLER_STEPS).then((answers) => {
-    const name = answers['name'];
+generatingController = async () => {
+  await inquirer.prompt(CREATING_CONTROLLER_STEPS).then(async(controller) => {
+    const controllerName = controller['name'];
+    processController(controllerName);
     const QUESTIONS = [
-      INQUIRER_STEPS.route(name)
+      INQUIRER_STEPS.route(controllerName),
+      {
+        name: 'hasAction',
+        type: 'confirm',
+        message: 'Init CRUD actions?',
+        default: false
+      }
     ];
-    inquirer.prompt(QUESTIONS).then((choices) => {
-      if (answers['hasAction']) {
-        inquirer.prompt(INQUIRER_STEPS.model).then((choices) => {
-          processController(name);
+    await inquirer.prompt(QUESTIONS).then(async(route) => {
+      dataForGenerating.isUncountable = route['name'] === controllerName;
+      dataForGenerating.routeName = route['name'];
+      if (route['hasAction']) {
+        await inquirer.prompt(INQUIRER_STEPS.model).then(async(model) => {
+          dataForGenerating.modelName = model['name'];
         });
-      } else {
-        processController(name);
       }
     });
   });
+  validateToCreateFiles();
 }
 
 generatingController();
 // generatingModel();
 
+/**
+ * this function only use for creating controller action
+ */
+validateToCreateFiles = () => {
+  let basedTemplate = '';
+  if (dataForGenerating.modelName) {
+    dataForGenerating.templateDir = templateCrudDir;
+  } else {
+    dataForGenerating.templateDir = templateNewDir;
+  }
+  newActions();
+  processFiles();
+}
+
 processController = (str) => {
   let hasFolder = false;
   let arr = str.split('/');
   let length = arr.length;
-  let controllerName = '';
   let folderName = '';
   if (length === 1) {
-    controllerName = arr[0];
+    dataForGenerating.controllerName = arr[0];
   } else {
     hasFolder = true;
-    controllerName = arr[length - 1];
-    folderName = str.replace(`/${controllerName}`, '');
+    dataForGenerating.controllerName = arr[length - 1];
+    dataForGenerating.folderName = str.replace(`/${dataForGenerating.controllerName}`, '');
   }
-  // shell.mkdir('-p', `${srcDir}${folderName}`);
 }
 
-processFiles = (model, route) => {
-  const isCountable = model === route;
-  let msgs = [];
-  const modelName = kebabToUpperCamel(model);
-  const schemaName = kebabToCamel(model);
-  let targets = {};
-  const modelTarget = {
-    model: {
-      dir: `${srcDir}models${folderDir}`,
-      fileName: `${model}.model.js`,
-      name: modelName
-    }
-  };
-  const actionTarget = {
-    controller: {
-      dir: `${srcDir}controllers${folderDir}`,
-      fileName: `${model}.controller.js`,
-      name: model
-    },
-    route: {
-      dir: `${srcDir}routes${folderDir}`,
-      fileName: `${model}.route.js`,
-      name: model,
-      isUncountable: model === route
-    },
-    schema: {
-      dir: `${srcDir}routes/documentation${folderDir}`,
-      fileName: `${model}.schema.js`,
-      name: schemaName
+processFiles = () => {
+  let target = {};
+  for (let key in todoList.generatingFiles) {
+    target = todoList.generatingFiles[key];
+    if (target) {
+      createDirectoryContents(target);
     }
   }
-  if (isModelOnly) {
-    targets = modelTarget;
-  } else if (isActionOnly) {
-    targets = actionTarget;
-  } else {
-    targets = { ...modelTarget, ...actionTarget };
-  }
-  msgs.push(`
-  \nCompleted!!!
-  \nFiles Added:
-  `);
-  let changedFile = '';
-  for (let key in targets) {
-    const newFile = createDirectoryContents(key, targets[key]);
-    msgs.push(newFile);
-    if (key === 'route') {
-      // change route index
-      changedFile = changeRouteIndex(model);
-    }
-  }; 
-  msgs.push(`------------------------------------
-  \nFiles Changed:
-  `);
-  msgs.push(changedFile);
-  console.log(msgs.join('\n'));
 }
 
-createDirectoryContents = (fileName, targetDirs) => {
-  const origFilePath = `${templateDir}${fileName}.js`;
+createDirectoryContents = (target) => {
+  if (!fs.existsSync(target['dir'])) {
+    shell.mkdir('-p', target['dir']);
+  }
+  const origFilePath = `${target['templateDir']}${target['type']}.js`;
   const stats = fs.statSync(origFilePath);
-
+  let fileCreated = '';
   if (stats.isFile()) {
-    const writePath = `${targetDirs['dir']}/${targetDirs['fileName']}`;
+    const writePath = `${target['dir']}/${target['fileName']}`;
     if (fs.existsSync(writePath)) {
-      console.log(`${writePath} file already exists.`);
+      // console.log(`${writePath} file already exists.`);
     } else {
       let contents = fs.readFileSync(origFilePath, 'utf8');
-      contents = contents.replace(/__MODEL__/g, targetDirs['name']);
-      contents = contents.replace(/'__ISUNCOUNTABLE__'/g, targetDirs['isUncountable'] ? ', true' : '');
+      contents = contents.replace(/__MODEL__/g, target['name']);
+      contents = contents.replace(/'__ISUNCOUNTABLE__'/g, target['isUncountable'] ? ', true' : '');
       fs.writeFileSync(writePath, contents, 'utf8');
-      return writePath;
+      fileCreated = writePath;
     }
-  } else if (stats.isDirectory()) {
-    //
   }
+  return fileCreated;
 }
 
 changeRouteIndex = (model) => {
