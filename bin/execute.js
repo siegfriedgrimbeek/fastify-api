@@ -122,9 +122,9 @@ newActions = (hasAction) => {
 generator = {
   model: async () => {
     await inquirer.prompt(CREATING_MODEL_STEPS).then(async(model) => {
-      const modelName = model['model'];
+      const modelName = model['name'];
       // define data to create model file
-      todoList.model = newObj('model', modelName);
+      todoList.model = newFileObj('model', modelName);
       if (model['hasAction']) {
         const QUESTIONS = [
           INQUIRER_STEPS.route(modelName)
@@ -137,11 +137,10 @@ generator = {
           // define data to create schema file
           dataForGenerating.schemaName = modelName;
           newActions();
-          processFiles();
         });
       }
+      processFiles();
     });
-    // do main duty
   },
   controller: async () => {
     await inquirer.prompt(CREATING_CONTROLLER_STEPS).then(async(controller) => {
@@ -170,7 +169,7 @@ generator = {
   }
 }
 
-generator['controller']();
+generator['model']();
 
 /**
  * this function only use for creating controller action
@@ -202,7 +201,6 @@ processController = (str) => {
 
 processFiles = () => {
   let target = {};
-  // console.log(todoList);
   for (let key in todoList) {
     target = todoList[key];
     if (target) {
