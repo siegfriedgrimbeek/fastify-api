@@ -3,10 +3,8 @@ module.exports = (controller, isUncountable = false, dir = '') => {
   // Import Controllers
   const handler = require(`@controllers/${dir}${controller}.controller`)
 
-  // Import Swagger documentation
-  const documentation = require(`@routes/documentation/${dir}${controller}.schema`)
-  // Get Schema
-  const schema = documentation[`${controller}Schema`]
+  // Import Swagger documentation & get Schema
+  const schema = require(`@schemas/${dir}${controller}.schema`)[`${controller}Schema`]
 
   // Define url
   const route = isUncountable ? `${dir}${controller}` : `${dir}${controller}s`;

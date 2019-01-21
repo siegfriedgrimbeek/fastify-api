@@ -96,7 +96,6 @@ newFileObj = (type, fileName) => {
   let folderOfType = `${type}s`;
   let objName = fileName;
   if (type === 'schema') {
-    folderOfType = `routes/documentation`;
     objName = kebabToCamel(fileName);
   } else if (type === 'route') {
     // objName = dataForGenerating.routeName
@@ -230,7 +229,7 @@ createDirectoryContents = (target, isRoute = false) => {
       contents = contents.replace(/__MODEL__/g, target['name']);
       if (target['folderName']) {
         secondReplace = target['isUncountable'] ? ',\n\ttrue' : ',\n\tfalse';
-        thirdReplace = `,\n\t'${target['folderName']}'`
+        thirdReplace = `,\n\t'${target['folderName']}/'`
       } else {
         secondReplace = target['isUncountable'] ? ',\n\ttrue' : '';
         thirdReplace = '';
@@ -278,7 +277,7 @@ modifyAppRoute = (name) => {
     }
     fileContents = fileContents.replace(/\n*\]/g, `\n\t...${routeName}\n]`);
     fileContents = fileContents.replace(checkBreakline, '\n');
-    fileContents = fileContents.replace(findModuleToInsertImport, `\nconst { ${routeName} } = require('./${routeFile}')\n`);
+    fileContents = fileContents.replace(findModuleToInsertImport, `\nconst ${routeName} = require('./${routeFile}')\n`);
   } else {
     console.log('Error');
   }
