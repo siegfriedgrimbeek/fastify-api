@@ -105,6 +105,7 @@ newFileObj = (type, fileName) => {
   }
   return {
     dir: `${srcDir}${folderOfType}/${dataForGenerating.folderName}`,
+    folderName: dataForGenerating.folderName ? `/${dataForGenerating.folderName}` : '',
     fileName: `${fileName}.${type}.js`,
     templateDir: dataForGenerating.templateDir || templateCrudDir,
     name: objName,
@@ -121,58 +122,58 @@ newActions = (hasAction) => {
   todoList.generatingFiles = { ...todoList.generatingFiles, ...newFiles };
 }
 
-generatingModel = async () => {
-  await inquirer.prompt(CREATING_MODEL_STEPS).then(async(model) => {
-    const modelName = model['model'];
-    // define data to create model file
-    todoList.generatingFiles.model = newObj('model', modelName);
-    if (model['hasAction']) {
-      const QUESTIONS = [
-        INQUIRER_STEPS.route(modelName)
-      ];
-      await inquirer.prompt(QUESTIONS).then((choices) => {
-        // define data to create controller file
-        dataForGenerating.controllerName = modelName;
-        // define data to create route file
-        dataForGenerating.routeName = modelName;
-        // define data to create schema file
-        dataForGenerating.schemaName = modelName;
-        newActions();
-        processFiles();
-      });
-    }
-  });
-  // do main duty
-}
-
-generatingController = async () => {
-  await inquirer.prompt(CREATING_CONTROLLER_STEPS).then(async(controller) => {
-    const controllerName = controller['name'];
-    processController(controllerName);
-    const QUESTIONS = [
-      INQUIRER_STEPS.route(controllerName),
-      {
-        name: 'hasAction',
-        type: 'confirm',
-        message: 'Init CRUD actions?',
-        default: false
-      }
-    ];
-    await inquirer.prompt(QUESTIONS).then(async(route) => {
-      dataForGenerating.isUncountable = route['name'] === controllerName;
-      dataForGenerating.routeName = route['name'];
-      if (route['hasAction']) {
-        await inquirer.prompt(INQUIRER_STEPS.model).then(async(model) => {
-          dataForGenerating.modelName = model['name'];
+generator = {
+  model: async () => {
+    await inquirer.prompt(CREATING_MODEL_STEPS).then(async(model) => {
+      const modelName = model['model'];
+      // define data to create model file
+      todoList.generatingFiles.model = newObj('model', modelName);
+      if (model['hasAction']) {
+        const QUESTIONS = [
+          INQUIRER_STEPS.route(modelName)
+        ];
+        await inquirer.prompt(QUESTIONS).then((choices) => {
+          // define data to create controller file
+          dataForGenerating.controllerName = modelName;
+          // define data to create route file
+          dataForGenerating.routeName = modelName;
+          // define data to create schema file
+          dataForGenerating.schemaName = modelName;
+          newActions();
+          processFiles();
         });
       }
     });
-  });
-  validateToCreateFiles();
+    // do main duty
+  },
+  controller: async () => {
+    await inquirer.prompt(CREATING_CONTROLLER_STEPS).then(async(controller) => {
+      const controllerName = controller['name'];
+      processController(controllerName);
+      const QUESTIONS = [
+        INQUIRER_STEPS.route(controllerName),
+        {
+          name: 'hasAction',
+          type: 'confirm',
+          message: 'Init CRUD actions?',
+          default: false
+        }
+      ];
+      await inquirer.prompt(QUESTIONS).then(async(route) => {
+        dataForGenerating.isUncountable = route['name'] === controllerName;
+        dataForGenerating.routeName = route['name'];
+        if (route['hasAction']) {
+          await inquirer.prompt(INQUIRER_STEPS.model).then(async(model) => {
+            dataForGenerating.modelName = model['name'];
+          });
+        }
+      });
+    });
+    validateToCreateFiles();
+  }
 }
 
-generatingController();
-// generatingModel();
+generator['controller']();
 
 /**
  * this function only use for creating controller action
@@ -204,21 +205,24 @@ processController = (str) => {
 
 processFiles = () => {
   let target = {};
+  // console.log(todoList);
   for (let key in todoList.generatingFiles) {
     target = todoList.generatingFiles[key];
     if (target) {
-      createDirectoryContents(target);
+      createDirectoryContents(target, key === 'route');
     }
   }
 }
 
-createDirectoryContents = (target) => {
+createDirectoryContents = (target, isRoute = false) => {
   if (!fs.existsSync(target['dir'])) {
     shell.mkdir('-p', target['dir']);
   }
   const origFilePath = `${target['templateDir']}${target['type']}.js`;
   const stats = fs.statSync(origFilePath);
   let fileCreated = '';
+  let secondReplace = '';
+  let thirdReplace = ''
   if (stats.isFile()) {
     const writePath = `${target['dir']}/${target['fileName']}`;
     if (fs.existsSync(writePath)) {
@@ -226,48 +230,61 @@ createDirectoryContents = (target) => {
     } else {
       let contents = fs.readFileSync(origFilePath, 'utf8');
       contents = contents.replace(/__MODEL__/g, target['name']);
-      contents = contents.replace(/'__ISUNCOUNTABLE__'/g, target['isUncountable'] ? ', true' : '');
+      if (target['folderName']) {
+        secondReplace = target['isUncountable'] ? ',\n\ttrue' : ',\n\tfalse';
+        thirdReplace = `,\n\t'${target['folderName']}'`
+      } else {
+        secondReplace = target['isUncountable'] ? ',\n\ttrue' : '';
+        thirdReplace = '';
+      }
+      contents = contents.replace(/'__ISUNCOUNTABLE__'/g, secondReplace);
+      contents = contents.replace(/'__DIR__'/g, thirdReplace);
       fs.writeFileSync(writePath, contents, 'utf8');
       fileCreated = writePath;
+      if (isRoute) {
+        // update index route
+        modifyAppRoute(target['name']);
+      }
     }
   }
   return fileCreated;
 }
 
-changeRouteIndex = (model) => {
+modifyAppRoute = (name) => {
   const indexRoutes = `${routeDir}index.js`;
-  let contents = fs.readFileSync(`${indexRoutes}`, 'utf8');
-  regex = /(module\.exports = \[)(.|\n)*(\])/g;
-  checkLastLine = /.+[,].*\n\]$/g;
-  checkLastLineNoCmt = /[\.a-z]+\n*\]/g;
-  checkBreakline = /\n*(?=(module\.exports = \[)(.|\n)*(\]))/g;
-  checkModuleNull = /(module\.exports = \[)(\n)*(\])/g;
-  findModuleToInsertImport = /\n(?=\nmodule\.exports)/g;
-  let namefile = 'abc';
-  if(regex.test(contents) ) {
-    const routeName = `${model}Route`;
-    let importcontents = `\n\t...${routeName}\n]`;
+  const routeName = `${name}Route`;
+  const routeFile = `${name}.route`;
+  let fileContents = fs.readFileSync(`${indexRoutes}`, 'utf8');
+  regex = /(module\.exports = \[)(.|\n)*(\])/g
+  // module.exports = []
+  checkModuleNull = /(module\.exports = \[)(\n)*(\])/g
+  // ...namefile, or ...namefile, // comment 
+  checkLastLine = /[a-zA-Z]+\,\s*[\sa-zA-Z\/\/]*\n\]/g
+  //...namefile // comment 
+  checkLastLineSpecialComma = /[a-zA-Z]+\s\/\/(\s?[a-z]+)?\n*\]/g 
+  checkBreakline = /\n*(?=(module\.exports = \[)(.|\n)*(\]))/g
+  findModuleToInsertImport = /\n(?=\nmodule\.exports)/g
+
+  if(regex.test(fileContents) ) {
     switch (true) {
-      case checkModuleNull.test(contents):
+      case checkModuleNull.test(fileContents):
         break;
-      case checkLastLineNoCmt.test(contents):
-        importcontents = `,${importcontents}`;
+      case checkLastLineSpecialComma.test(fileContents):
+        fileContents = fileContents.replace(/\s(?=\/\/.*\n*\])/g, `, `)
         break
-      case checkLastLine.test(contents):
+      case checkLastLine.test(fileContents):
         break
       default:
-        contents = contents.replace(/\s(?=\/\/.*\n*\])/g, `, `);
+        fileContents = fileContents.replace(/\n*\]/g, `,\n]`)
+        break
     }
-    // import route name
-    contents = contents.replace(/\n*\]/g, importcontents);
-    const requiredcontents = `const ${routeName} = require('./${model}.route')`;
-    contents = contents.replace(checkBreakline, '\n');
-    // require route
-    contents = contents.replace(findModuleToInsertImport, `\n${requiredcontents}\n`);
+    fileContents = fileContents.replace(/\n*\]/g, `\n\t...${routeName}\n]`);
+    fileContents = fileContents.replace(checkBreakline, '\n');
+    fileContents = fileContents.replace(findModuleToInsertImport, `\nconst { ${routeName} } = require('./${routeFile}')\n`);
   } else {
-    console.log('Can not import new route. Please do it manually!');
+    console.log('Error');
   }
-  fs.writeFileSync(`${indexRoutes}`, contents, 'utf8');
+  fs.writeFileSync(`${indexRoutes}`, fileContents, 'utf8');
   return `${indexRoutes}`;
 }
 

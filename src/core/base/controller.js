@@ -1,4 +1,4 @@
-module.exports = (model, ...dir) => {
+module.exports = (model) => {
   // External Dependancies
   const boom = require('boom')
   

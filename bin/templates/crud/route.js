@@ -1,5 +1,6 @@
-const router = require('@core/base/route')
-let { controller, uri, routes } = router('__MODEL__''__ISUNCOUNTABLE__')
+let { controller, uri, routes } = require('@core/base/route')(
+  '__MODEL__''__ISUNCOUNTABLE__''__DIR__'
+)
 
 /**
  * Adding new route here
