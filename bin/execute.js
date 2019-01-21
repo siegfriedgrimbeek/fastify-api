@@ -24,12 +24,10 @@ const routeDir = `${srcDir}routes/`;
  * }
  */
 let todoList = {
-  generatingFiles: {
-    controller: null,
-    model: null,
-    route: null,
-    schema: null
-  }
+  controller: null,
+  model: null,
+  route: null,
+  schema: null
 };
 
 let notification = {
@@ -119,7 +117,7 @@ newActions = (hasAction) => {
     route: newFileObj('route', dataForGenerating.controllerName),
     schema: newFileObj('schema', dataForGenerating.controllerName)
   };
-  todoList.generatingFiles = { ...todoList.generatingFiles, ...newFiles };
+  todoList = { ...todoList, ...newFiles };
 }
 
 generator = {
@@ -127,7 +125,7 @@ generator = {
     await inquirer.prompt(CREATING_MODEL_STEPS).then(async(model) => {
       const modelName = model['model'];
       // define data to create model file
-      todoList.generatingFiles.model = newObj('model', modelName);
+      todoList.model = newObj('model', modelName);
       if (model['hasAction']) {
         const QUESTIONS = [
           INQUIRER_STEPS.route(modelName)
@@ -206,8 +204,8 @@ processController = (str) => {
 processFiles = () => {
   let target = {};
   // console.log(todoList);
-  for (let key in todoList.generatingFiles) {
-    target = todoList.generatingFiles[key];
+  for (let key in todoList) {
+    target = todoList[key];
     if (target) {
       createDirectoryContents(target, key === 'route');
     }
