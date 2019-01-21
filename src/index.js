@@ -24,7 +24,7 @@ const fastify = require('fastify')({
 const mongoose = require('mongoose')
 
 // Import Routes
-const routes = require('./routes')
+const routes = require('./routes/app.route')
 
 // Import Swagger Options
 const swagger = require('./config/swagger')

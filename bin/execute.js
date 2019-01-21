@@ -248,7 +248,7 @@ createDirectoryContents = (target, isRoute = false) => {
 }
 
 modifyAppRoute = (name) => {
-  const indexRoutes = `${routeDir}index.js`;
+  const indexRoutes = `${routeDir}app.route.js`;
   const routeName = `${name}Route`;
   const routeFile = `${name}.route`;
   let fileContents = fs.readFileSync(`${indexRoutes}`, 'utf8');
