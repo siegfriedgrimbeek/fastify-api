@@ -104,13 +104,14 @@ newFileObj = (type, fileName) => {
   }
 };
 
-newActions = (hasAction) => {
+defineActions = (hasAction) => {
   let newFiles = {
     controller: newFileObj('controller', dataForGenerating.controllerName),
     route: newFileObj('route', dataForGenerating.controllerName),
     schema: newFileObj('schema', dataForGenerating.controllerName)
   };
   todoList = { ...todoList, ...newFiles };
+  processFiles();
 }
 
 generator = {
@@ -130,16 +131,15 @@ generator = {
           dataForGenerating.routeName = modelName;
           // define data to create schema file
           dataForGenerating.schemaName = modelName;
-          newActions();
         });
       }
-      processFiles();
+      defineActions();
     });
   },
   controller: async () => {
     await inquirer.prompt(CREATING_CONTROLLER_STEPS).then(async(controller) => {
       const controllerName = controller['name'];
-      processController(controllerName);
+      analystController(controllerName);
       const QUESTIONS = [
         INQUIRER_STEPS.route(controllerName),
         {
@@ -159,7 +159,12 @@ generator = {
         }
       });
     });
-    validateToCreateFiles();
+    if (dataForGenerating.modelName) {
+      dataForGenerating.templateDir = templateCrudDir;
+    } else {
+      dataForGenerating.templateDir = templateNewDir;
+    }
+    defineActions();
   },
   help: () => {
     console.log(chalk.yellow(`${cmdAlias} model to create model`));
@@ -175,21 +180,7 @@ run = () => {
   }
 }
 
-/**
- * this function only use for creating controller action
- */
-validateToCreateFiles = () => {
-  let basedTemplate = '';
-  if (dataForGenerating.modelName) {
-    dataForGenerating.templateDir = templateCrudDir;
-  } else {
-    dataForGenerating.templateDir = templateNewDir;
-  }
-  newActions();
-  processFiles();
-}
-
-processController = (str) => {
+analystController = (str) => {
   let hasFolder = false;
   let arr = str.split('/');
   let length = arr.length;
@@ -212,10 +203,10 @@ processFiles = () => {
       createDirectoryContents(target, key === 'route');
     }
   }
-  processNotification();
+  processNotifications();
 }
 
-processNotification = () => {
+processNotifications = () => {
   let notification;
   for (let key in notifications) {
     notification = notifications[key];
