@@ -20,16 +20,19 @@
 You can use the `g` command to generate controllers:
 
 ```bash
-# Using the alias
-g controller my-new-component
-# Your controller will be generated in src/controllers
-# Your route with the same name will be generated in src/routes
-# Your schema will be generated in src/schemas
+g controller
+The system will ask you enter your Controller name, then you can:
 
-# Controller support relative path generation
-g controller admin/feature/new-cmp
+# entering the alias
+new-controller-name
+# Your controller named `new-controller-name.controller.js` will be generated in src/controllers
+# Your route names named `new-controller-name.route.js` will be generated in src/routes
+# Your schema named `new-controller-name.schema.js` will be generated in src/schemas
+
+# or entering relative path generation
+admin/feature/new-controller-name
 # Your controller will be generated in src/controllers/admin/feature
-# Your route with the same name will be generated in src/routes/admin/feature
+# Your route will be generated in src/routes/admin/feature
 # Your schema will be generated in src/schemas/admin/feature
 
 ```
@@ -39,3 +42,5 @@ Scaffold  | Usage
 ---       | ---
 [Model]      | `g model`
 [Controller, Route, Schema]      | `g controller`
+
+`Note that, Your models always generated in src/models`
