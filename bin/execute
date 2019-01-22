@@ -207,9 +207,15 @@ processFiles = () => {
 }
 
 processNotifications = () => {
+  const typeMsgs = {
+    added: `File(s) added:`
+  };
   let notification;
   for (let key in notifications) {
     notification = notifications[key];
+    if (typeMsgs[key] && notification && notification.length) {
+      console.log(chalk.cyan(`${typeMsgs[key]}`));
+    }
     for (let obj of notification) {
       console.log(chalk[obj.msgType](`${obj.msg}`));
     }
@@ -234,7 +240,6 @@ createDirectoryContents = (target, isRoute = false) => {
         msg: `${writePath} file already exists`,
         msgType: 'red'
       });
-      // console.log(`${writePath} file already exists.`);
     } else {
       let contents = fs.readFileSync(origFilePath, 'utf8');
       contents = contents.replace(/__MODEL__/g, target['name']);
@@ -257,19 +262,21 @@ createDirectoryContents = (target, isRoute = false) => {
       if (isRoute) {
         // update index route
         let fileName = modifyAppRoute(target['name']);
-        // define message in case app route is updated
-        notifications.modified.push({
-          name: fileName,
-          msg: `${fileName} was modified.`,
-          msgType: 'yellow'
-        });
-      } else {
-        // define message in case app route is not updated
-        notifications.modified.push({
-          name: writePath,
-          msg: `${writePath} was defined, please import it into your application`,
-          msgType: 'yellow'
-        });
+        if (fileName) {
+          // define message in case app route is updated
+          notifications.modified.push({
+            name: fileName,
+            msg: `${fileName} was modified.`,
+            msgType: 'yellow'
+          });
+        } else {
+          // define message in case app route is not updated
+          notifications.modified.push({
+            name: writePath,
+            msg: `${writePath} was defined, please import it into your application.`,
+            msgType: 'yellow'
+          });
+        }
       }
     }
   }
@@ -290,7 +297,8 @@ modifyAppRoute = (name) => {
   checkBreakline = /\n*(?=(module\.exports = \[)(.|\n)*(\]))/g;
   findModuleToInsertImport = /\n(?=\nmodule\.exports)/g;
 
-  if (regex.test(fileContents)) {
+  // app route has content & the new route contained in root route folder
+  if (regex.test(fileContents) && !dataForGenerating.folderName) {
     switch (true) {
       case checkModuleNull.test(fileContents):
         break;
@@ -308,7 +316,7 @@ modifyAppRoute = (name) => {
     fs.writeFileSync(`${indexRoutes}`, fileContents, 'utf8');
     return `${indexRoutes}`;
   } else {
-    console.log('Error');
+    return false;
   }
 }
 
