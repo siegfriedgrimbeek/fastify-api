@@ -1,5 +1,6 @@
-const router = require('../core/base/route')
-let { routes } = router('book')
+let { controller, uri, routes } = require('@core/base/route')(
+  'book'
+)
 
 /**
  * Adding new route here

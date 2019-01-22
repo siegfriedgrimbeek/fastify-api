@@ -2,9 +2,11 @@
 /**
  * This is readonly file
  */
+const cmdAlias = 'g';
 const inquirer = require('inquirer');
 const fs = require('fs');
 const shell = require('shelljs');
+const chalk = require('chalk');
 
 const projectDir = process.cwd();
 const srcDir = `${projectDir}/src/`;
@@ -12,17 +14,8 @@ const templateCrudDir = `${projectDir}/bin/templates/crud/`;
 const templateNewDir = `${projectDir}/bin/templates/new/`;
 const routeDir = `${srcDir}routes/`;
 
-/**
- * generatingFolders item format
- * {
- *  name: string
- * }
- * 
- * generatingFiles item format
- * {
- *  name: string
- * }
- */
+const actor = process.argv[2];
+
 let todoList = {
   controller: null,
   model: null,
@@ -30,8 +23,9 @@ let todoList = {
   schema: null
 };
 
-let notification = {
+let notifications = {
   added: [],
+  failed: [],
   modified: []
 };
 
@@ -48,7 +42,7 @@ const INQUIRER_STEPS = {
   model: {
     name: 'name',
     type: 'input',
-    message: 'Enter model name:',
+    message: 'Enter your Model name:',
     validate: function (input) {
       if (/^[a-z]+(-[a-z]+)*$/g.test(input)) {
         return true;
@@ -60,7 +54,7 @@ const INQUIRER_STEPS = {
   controller: {
     name: 'name',
     type: 'input',
-    message: 'Enter your controller:',
+    message: 'Enter your Controller:',
     validate: function (input) {
       if (/^([a-z]+(-[a-z]+)*)+(\/([a-z]+(-[a-z]+)*))*$/g.test(input)) {
         return true;
@@ -101,7 +95,7 @@ newFileObj = (type, fileName) => {
     // objName = dataForGenerating.routeName
   }
   return {
-    dir: `${srcDir}${folderOfType}/${dataForGenerating.folderName}`,
+    dir: `${srcDir}${folderOfType}${dataForGenerating.folderName}`,
     folderName: dataForGenerating.folderName ? `/${dataForGenerating.folderName}` : '',
     fileName: `${fileName}.${type}.js`,
     templateDir: dataForGenerating.templateDir || templateCrudDir,
@@ -166,10 +160,20 @@ generator = {
       });
     });
     validateToCreateFiles();
+  },
+  help: () => {
+    console.log(chalk.yellow(`${cmdAlias} model to create model`));
+    console.log(chalk.yellow(`${cmdAlias} controller to create controller`));
   }
 }
 
-generator['model']();
+run = () => {
+  if (generator[actor] && typeof generator[actor] === 'function') {
+    generator[actor]();
+  } else {
+    console.log(chalk.red(`The specified command ${actor} is invalid. For available options, see '${cmdAlias} help'.`));
+  }
+}
 
 /**
  * this function only use for creating controller action
@@ -196,6 +200,7 @@ processController = (str) => {
     hasFolder = true;
     dataForGenerating.controllerName = arr[length - 1];
     dataForGenerating.folderName = str.replace(`/${dataForGenerating.controllerName}`, '');
+    dataForGenerating.folderName = `/${dataForGenerating.folderName}`;
   }
 }
 
@@ -205,6 +210,17 @@ processFiles = () => {
     target = todoList[key];
     if (target) {
       createDirectoryContents(target, key === 'route');
+    }
+  }
+  processNotification();
+}
+
+processNotification = () => {
+  let notification;
+  for (let key in notifications) {
+    notification = notifications[key];
+    for (let obj of notification) {
+      console.log(chalk[obj.msgType](`${obj.msg}`));
     }
   }
 }
@@ -221,6 +237,12 @@ createDirectoryContents = (target, isRoute = false) => {
   if (stats.isFile()) {
     const writePath = `${target['dir']}/${target['fileName']}`;
     if (fs.existsSync(writePath)) {
+      // define error message if a file is exists
+      notifications.failed.push({
+        name: writePath,
+        msg: `${writePath} file already exists`,
+        msgType: 'red'
+      });
       // console.log(`${writePath} file already exists.`);
     } else {
       let contents = fs.readFileSync(origFilePath, 'utf8');
@@ -235,14 +257,31 @@ createDirectoryContents = (target, isRoute = false) => {
       contents = contents.replace(/'__ISUNCOUNTABLE__'/g, secondReplace);
       contents = contents.replace(/'__DIR__'/g, thirdReplace);
       fs.writeFileSync(writePath, contents, 'utf8');
-      fileCreated = writePath;
+      // define message after file created
+      notifications.added.push({
+        name: writePath,
+        msg: `${writePath}`,
+        msgType: 'cyan'
+      });
       if (isRoute) {
         // update index route
-        modifyAppRoute(target['name']);
+        let fileName = modifyAppRoute(target['name']);
+        // define message in case app route is updated
+        notifications.modified.push({
+          name: fileName,
+          msg: `${fileName} was modified.`,
+          msgType: 'yellow'
+        });
+      } else {
+        // define message in case app route is not updated
+        notifications.modified.push({
+          name: writePath,
+          msg: `${writePath} was defined, please import it into your application`,
+          msgType: 'yellow'
+        });
       }
     }
   }
-  return fileCreated;
 }
 
 modifyAppRoute = (name) => {
@@ -250,37 +289,36 @@ modifyAppRoute = (name) => {
   const routeName = `${name}Route`;
   const routeFile = `${name}.route`;
   let fileContents = fs.readFileSync(`${indexRoutes}`, 'utf8');
-  regex = /(module\.exports = \[)(.|\n)*(\])/g
+  regex = /(module\.exports = \[)(.|\n)*(\])/g;
   // module.exports = []
-  checkModuleNull = /(module\.exports = \[)(\n)*(\])/g
+  checkModuleNull = /(module\.exports = \[)(\n)*(\])/g;
   // ...namefile, or ...namefile, // comment 
-  checkLastLine = /[a-zA-Z]+\,\s*[\sa-zA-Z\/\/]*\n\]/g
+  checkLastLine = /[a-zA-Z]+\,\s*[\sa-zA-Z\/\/]*\n\]/g;
   //...namefile // comment 
-  checkLastLineSpecialComma = /[a-zA-Z]+\s\/\/(\s?[a-z]+)?\n*\]/g 
-  checkBreakline = /\n*(?=(module\.exports = \[)(.|\n)*(\]))/g
-  findModuleToInsertImport = /\n(?=\nmodule\.exports)/g
+  checkLastLineSpecialComma = /[a-zA-Z]+\s\/\/(\s?[a-z]+)?\n*\]/g;
+  checkBreakline = /\n*(?=(module\.exports = \[)(.|\n)*(\]))/g;
+  findModuleToInsertImport = /\n(?=\nmodule\.exports)/g;
 
-  if(regex.test(fileContents) ) {
+  if (regex.test(fileContents)) {
     switch (true) {
       case checkModuleNull.test(fileContents):
         break;
       case checkLastLineSpecialComma.test(fileContents):
-        fileContents = fileContents.replace(/\s(?=\/\/.*\n*\])/g, `, `)
+        fileContents = fileContents.replace(/\s(?=\/\/.*\n*\])/g, `, `);
         break
       case checkLastLine.test(fileContents):
         break
       default:
-        fileContents = fileContents.replace(/\n*\]/g, `,\n]`)
-        break
+        fileContents = fileContents.replace(/\n*\]/g, `,\n]`);
     }
     fileContents = fileContents.replace(/\n*\]/g, `\n\t...${routeName}\n]`);
     fileContents = fileContents.replace(checkBreakline, '\n');
     fileContents = fileContents.replace(findModuleToInsertImport, `\nconst ${routeName} = require('./${routeFile}')\n`);
+    fs.writeFileSync(`${indexRoutes}`, fileContents, 'utf8');
+    return `${indexRoutes}`;
   } else {
     console.log('Error');
   }
-  fs.writeFileSync(`${indexRoutes}`, fileContents, 'utf8');
-  return `${indexRoutes}`;
 }
 
 kebabToCamel = (string) => {
@@ -295,3 +333,6 @@ kebabToUpperCamel = (string) => {
   });
   return string.replace(/\b\w/g, (l) => l.toUpperCase());
 };
+
+// run main action for generating
+run();

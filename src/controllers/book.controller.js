@@ -1,5 +1,6 @@
-const constructor = require('@core/base/controller')
-let { actions } = constructor('book')
+let { actions } = require('@core/base/controller')(
+  'book'
+)
 
 /**
  * Adding new action here
