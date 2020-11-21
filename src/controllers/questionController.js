@@ -7,8 +7,7 @@ const Question = require('../models/Question')
 // Get all questions
 exports.getAllQuestions = async (req, reply) => {
   try {
-    const questions = await Question.find({})
-    return questions
+    return await Question.find({})
   } catch (err) {
     throw boom.boomify(err)
   }

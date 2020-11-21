@@ -3,11 +3,6 @@ const fastify = require('fastify')({
   logger: true
 })
 
-const cors = require('cors')
-
-fastify.use(cors())
-fastify.options('*', (request, reply) => { reply.send() })
-
 // Require external modules
 const mongoose = require('mongoose')
 
@@ -22,6 +17,9 @@ const swagger = require('./config/swagger')
 
 // Register Swagger
 fastify.register(require('fastify-swagger'), swagger.options)
+
+// Register CORS
+fastify.register(require('fastify-cors'))
 
 // Connect to DB
 mongoose.connect("mongodb+srv://BCSAdmin:YA35kUEzURnayYf@cluster0.mrofz.mongodb.net/scat?retryWrites=true&w=majority")

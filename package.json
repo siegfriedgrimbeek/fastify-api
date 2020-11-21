@@ -12,7 +12,8 @@
   "dependencies": {
     "boom": "^7.2.2",
     "cors": "^2.8.5",
-    "fastify": "^1.13.0",
+    "fastify": "^3.8.0",
+    "fastify-cors": "^4.1.0",
     "fastify-mongodb": "^0.9.1",
     "fastify-swagger": "^0.15.3",
     "mongoose": "^5.3.14"
