@@ -84,3 +84,28 @@ exports.countUserTestResults = async (req, reply) => {
         throw boom.boomify(err)
     }
 }
+
+exports.countUserTestResultsByTheme = async (req, reply) => {
+    try {
+        const _user_id = req.params.user_id
+        const _theme_id = req.params.theme_id
+
+        const existResult = await TestResults.find({theme_id: _theme_id, user_id: _user_id})
+
+        if (existResult.length > 0) {
+            let points = 0
+            let lessons = []
+
+            await Promise.all(existResult.map(async (result) => {
+                points += result.points
+                lessons = lessons.concat(result.lessons)
+            }))
+
+            return reply.code(200).send({theme_id: parseInt(_theme_id), user_id: parseInt(_user_id), points, lessons})
+        }
+
+        return reply.code(400).send({ error: 'Результатов для данного пользователя не найдено' })
+    } catch (err) {
+        throw boom.boomify(err)
+    }
+}

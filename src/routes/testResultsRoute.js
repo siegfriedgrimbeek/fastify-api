@@ -23,6 +23,11 @@ const routes = [
         method: 'GET',
         url: '/api/test/results/:theme_id/:test_id/:user_id',
         handler: testResultsController.countUserTestResults
+    },
+    {
+        method: 'GET',
+        url: '/api/test/results/:theme_id/:user_id',
+        handler: testResultsController.countUserTestResultsByTheme
     }
 ]
 
