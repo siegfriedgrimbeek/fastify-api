@@ -3,11 +3,19 @@ const fastify = require('fastify')({
   logger: true
 })
 
+const cors = require('cors')
+
+fastify.use(cors())
+fastify.options('*', (request, reply) => { reply.send() })
+
 // Require external modules
 const mongoose = require('mongoose')
 
 // Import Routes
-const routes = require('./routes')
+const questionRoutes = require('./routes/questionRoute')
+const questionResultsRoutes = require('./routes/questionResultsRoute')
+const testRoutes = require('./routes/testRoute')
+const testResultsRoutes = require('./routes/testResultsRoute')
 
 // Import Swagger Options
 const swagger = require('./config/swagger')
@@ -16,12 +24,24 @@ const swagger = require('./config/swagger')
 fastify.register(require('fastify-swagger'), swagger.options)
 
 // Connect to DB
-mongoose.connect('mongodb://localhost/mycargarage')
+mongoose.connect("mongodb+srv://BCSAdmin:YA35kUEzURnayYf@cluster0.mrofz.mongodb.net/scat?retryWrites=true&w=majority")
   .then(() => console.log('MongoDB connected...'))
   .catch(err => console.log(err))
 
 // Loop over each route
-routes.forEach((route, index) => {
+questionRoutes.forEach((route, index) => {
+  fastify.route(route)
+})
+
+questionResultsRoutes.forEach((route, index) => {
+  fastify.route(route)
+})
+
+testRoutes.forEach((route, index) => {
+  fastify.route(route)
+})
+
+testResultsRoutes.forEach((route, index) => {
   fastify.route(route)
 })
 

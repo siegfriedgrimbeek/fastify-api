@@ -1,0 +1,61 @@
+exports.addTestSchema = {
+    description: 'Create a new test',
+    tags: ['tests'],
+    summary: 'Creates new test with given values',
+    body: {
+        type: 'object',
+        properties: {
+            theme_id: {type: 'number'},
+            test_id: {type: 'number'},
+            easy_questions: { type: 'object' },
+            medium_questions: { type: 'object' },
+            difficult_questions: { type: 'object' }
+        }
+    },
+    response: {
+        200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+                _id: {type: 'string'},
+                theme_id: {type: 'number'},
+                test_id: {type: 'number'},
+                easy_questions: { type: 'object' },
+                medium_questions: { type: 'object' },
+                difficult_questions: { type: 'object' },
+                __v: {type: 'number'}
+            }
+        }
+    }
+}
+
+exports.updateTestSchema = {
+    description: 'Update existing test',
+    tags: ['tests'],
+    summary: 'Update existing test with given values',
+    body: {
+        type: 'object',
+        properties: {
+            theme_id: {type: 'number'},
+            test_id: {type: 'number'},
+            easy_questions: { type: 'object' },
+            medium_questions: { type: 'object' },
+            difficult_questions: { type: 'object' },
+        }
+    },
+    response: {
+        200: {
+            description: 'Successful response',
+            type: 'object',
+            properties: {
+                _id: {type: 'string'},
+                test_id: {type: 'number'},
+                theme_id: {type: 'number'},
+                easy_questions: { type: 'object' },
+                medium_questions: { type: 'object' },
+                difficult_questions: { type: 'object' },
+                __v: {type: 'number'}
+            }
+        }
+    }
+}
