@@ -26,8 +26,17 @@ exports.getQuestionResultsById = async (req, reply) => {
 // Add a new questionResult
 exports.addQuestionResults = async (req, reply) => {
     try {
-        const questionResult = new QuestionResults(req.body)
-        return questionResult.save()
+        const { user_id, theme_id, test_id, question, user_answers } = req.body
+
+        let existQuestion = await QuestionResults.find({theme_id, user_id, test_id, _id: question})
+
+        if (existQuestion == null) {
+            const questionResult = new QuestionResults(req.body)
+
+            return questionResult.save()
+        } else {
+            return await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
+        }
     } catch (err) {
         throw boom.boomify(err)
     }
