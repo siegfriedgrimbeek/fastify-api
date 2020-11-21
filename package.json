@@ -16,7 +16,8 @@
     "fastify-cors": "^4.1.0",
     "fastify-mongodb": "^0.9.1",
     "fastify-swagger": "^0.15.3",
-    "mongoose": "^5.3.14"
+    "mongoose": "^5.3.14",
+    "process": "^0.11.10"
   },
   "devDependencies": {
     "nodemon": "^1.18.7"

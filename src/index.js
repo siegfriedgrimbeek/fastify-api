@@ -1,3 +1,4 @@
+const process = require('process')
 // Require the fastify framework and instantiate it
 const fastify = require('fastify')({
   logger: true
@@ -46,7 +47,7 @@ testResultsRoutes.forEach((route, index) => {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(3000, '0.0.0.0')
+    await fastify.listen(process.env.PORT, 'localhost')
     fastify.swagger()
     fastify.log.info(`server listening on ${fastify.server.address().port}`)
   } catch (err) {
