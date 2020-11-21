@@ -1,4 +1,3 @@
-const process = require('process')
 // Require the fastify framework and instantiate it
 const fastify = require('fastify')({
   logger: true
