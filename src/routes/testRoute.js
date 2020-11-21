@@ -33,12 +33,13 @@ const routes = [
     {
         method: 'GET',
         url: '/api/test/:id/:theme_id',
-        handler: testController.getTestById
+        handler: testController.getTestByIdAndTheme
     },
     {
         method: 'GET',
-        url: '/api/test/:themeId/all',
-        handler: testController.getTestById
+        url: '/api/test/:theme_id/all',
+        handler: testController.getTestsByTheme,
+        schema: testDocumentation.testSchema
     }
 ]
 
