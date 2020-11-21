@@ -77,18 +77,27 @@ exports.getTestsByTheme = async (req, reply) => {
         const new_tests = await Promise.all(tests.map(async (test) => {
             test.easy_questions = await Promise.all(test.easy_questions.map(async (q) => {
                 const que = await Question.findById(q._id)
-                que.right_answers = undefined
-                return que
+
+                if (que != null) {
+                    que.right_answers = undefined
+                    return que
+                }
             }))
             test.medium_questions = await Promise.all(test.medium_questions.map(async (q) => {
                 const que = await Question.findById(q._id)
-                que.right_answers = undefined
-                return que
+
+                if (que != null) {
+                    que.right_answers = undefined
+                    return que
+                }
             }))
             test.difficult_questions = await Promise.all(test.difficult_questions.map(async (q) => {
                 const que = await Question.findById(q._id)
-                que.right_answers = undefined
-                return que
+
+                if (que != null) {
+                    que.right_answers = undefined
+                    return que
+                }
             }))
 
             return test

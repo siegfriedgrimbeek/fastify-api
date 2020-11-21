@@ -4,13 +4,9 @@ const mongoose = require('mongoose'), Schema = mongoose.Schema
 const questionResultsSchema = new mongoose.Schema({
     user_id: Number,
     theme_id: Number,
-    test_id: Number,
+    test_id: { type: Schema.Types.ObjectId, ref: 'question' },
     question: { type: Schema.Types.ObjectId, ref: 'question' },
-    points: Number,
-    difficulty: Number,
-    user_answers: [String],
-    right_answers: [Number],
-    result: Number
+    user_answers: [Number]
 })
 
 module.exports = mongoose.model('questionResult', questionResultsSchema)

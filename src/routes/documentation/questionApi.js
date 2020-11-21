@@ -8,7 +8,7 @@ exports.addQuestionSchema = {
       text: { type: 'string' },
       qtype: { type: 'string' },
       difficulty: { type: 'number' },
-      right_answers: { type: 'number' },
+      right_answers: { type: 'array' },
       points: { type: 'number' },
       subtheme: { type: 'number' },
       answers: { type: 'object' }
@@ -19,15 +19,6 @@ exports.addQuestionSchema = {
       description: 'Successful response',
       type: 'object',
       properties: {
-        _id: { type: 'string' },
-        text: { type: 'string' },
-        qtype: { type: 'string' },
-        difficulty: { type: 'number' },
-        right_answers: { type: 'number' },
-        points: { type: 'number' },
-        subtheme: { type: 'number' },
-        answers: { type: 'object' },
-        __v: { type: 'number' }
       }
     }
   }

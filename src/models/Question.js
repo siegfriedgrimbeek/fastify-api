@@ -5,12 +5,12 @@ const questionSchema = new mongoose.Schema({
   text: String,
   qtype: String,
   difficulty: Number,
-  right_answers: Number,
+  right_answers: [Number],
   points: Number,
   subtheme: Number,
   answers: {
     type: Map,
-    of: Number
+    of: String
   }
 })
 

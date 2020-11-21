@@ -1,6 +1,8 @@
 const boom = require('boom')
 
 const TestResults = require('../models/TestResults')
+const QuestionResults = require('../models/QuestionResults')
+const Question = require('../models/Question')
 
 exports.getAllTestResults = async (req, reply) => {
     try {
@@ -38,7 +40,46 @@ exports.countUserTestResults = async (req, reply) => {
         const _test_id = req.params.test_id
         const _theme_id = req.params.theme_id
 
-        return TestResults.find({user_id: _user_id, test_id: _test_id, theme_id: _theme_id}).toArray().map(x => x.result).reduce((partial_sum, a) => partial_sum + a,0)
+        const results = await QuestionResults.find({theme_id: _theme_id, user_id: _user_id, test_id: _test_id})
+        const existResult = await TestResults.findOne({theme_id: _theme_id, user_id: _user_id, test_id: _test_id})
+
+        if (results.length > 0) {
+            let points = 0
+            let lessons = []
+
+            await Promise.all(results.map(async (result) => {
+                const question = await Question.findById(result.question)
+
+                if (question != null) {
+                    if (question.right_answers.every(v => result.user_answers.indexOf(v) >= 0)) {
+                        points += question.points
+                    } else {
+                        lessons.push(question.subtheme)
+                    }
+                }
+
+                return result
+            }))
+
+            let savedProgress
+            if (existResult == null) {
+                const test_res = new TestResults({
+                    user_id: _user_id,
+                    test_id: _test_id,
+                    theme_id: _theme_id,
+                    points,
+                    lessons
+                })
+
+                savedProgress = await test_res.save()
+            } else {
+                savedProgress = await TestResults.findByIdAndUpdate(existResult._id, {points, lessons}, { new: true })
+            }
+
+            return reply.code(200).send(savedProgress)
+        }
+
+        return reply.code(400).send({ error: 'Результатов для данного пользователя не найдено' })
     } catch (err) {
         throw boom.boomify(err)
     }

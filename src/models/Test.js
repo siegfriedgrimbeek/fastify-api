@@ -2,7 +2,6 @@
 const mongoose = require('mongoose'), Schema = mongoose.Schema
 
 const testSchema = new mongoose.Schema({
-    test_id: Number,
     theme_id: Number,
     easy_questions: [{type: Schema.Types.ObjectId, ref: 'question'}],
     medium_questions: [{type: Schema.Types.ObjectId, ref: 'question'}],

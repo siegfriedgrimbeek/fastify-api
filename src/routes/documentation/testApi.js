@@ -6,7 +6,6 @@ exports.addTestSchema = {
         type: 'object',
         properties: {
             theme_id: {type: 'number'},
-            test_id: {type: 'number'},
             easy_questions: { type: 'array' },
             medium_questions: { type: 'array' },
             difficult_questions: { type: 'array' }
@@ -19,7 +18,6 @@ exports.addTestSchema = {
             properties: {
                 _id: {type: 'string'},
                 theme_id: {type: 'number'},
-                test_id: {type: 'number'},
                 easy_questions: { type: 'array' },
                 medium_questions: { type: 'array' },
                 difficult_questions: { type: 'array' },
@@ -37,7 +35,6 @@ exports.updateTestSchema = {
         type: 'object',
         properties: {
             theme_id: {type: 'number'},
-            test_id: {type: 'number'},
             easy_questions: { type: 'object' },
             medium_questions: { type: 'object' },
             difficult_questions: { type: 'object' },
@@ -49,7 +46,6 @@ exports.updateTestSchema = {
             type: 'object',
             properties: {
                 _id: {type: 'string'},
-                test_id: {type: 'number'},
                 theme_id: {type: 'number'},
                 easy_questions: { type: 'object' },
                 medium_questions: { type: 'object' },
@@ -70,7 +66,6 @@ exports.testSchema = {
             type: 'array',
             properties: {
                 _id: {type: 'string'},
-                test_id: {type: 'number'},
                 theme_id: {type: 'number'},
                 easy_questions: { type: 'array' },
                 medium_questions: { type: 'array' },

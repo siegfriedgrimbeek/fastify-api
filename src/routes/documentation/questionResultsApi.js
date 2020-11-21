@@ -7,7 +7,7 @@ exports.addQuestionResultsSchema = {
         properties: {
             user_id: { type: 'number' },
             theme_id: { type: 'number' },
-            test_id: { type: 'number' },
+            test_id: { type: 'string' },
             question: { type: 'string' },
             user_answers: { type: 'array' }
         }
@@ -32,7 +32,7 @@ exports.updateQuestionResultsSchema = {
             _id: { type: 'string' },
             user_id: { type: 'number' },
             theme_id: { type: 'number' },
-            test_id: { type: 'number' },
+            test_id: { type: 'string' },
             question: { type: 'string' },
             points: { type: 'number' },
             difficulty: { type: 'number' },
@@ -49,7 +49,7 @@ exports.updateQuestionResultsSchema = {
                 _id: { type: 'string' },
                 user_id: { type: 'number' },
                 theme_id: { type: 'number' },
-                test_id: { type: 'number' },
+                test_id: { type: 'string' },
                 question: { type: 'string' },
                 points: { type: 'number' },
                 difficulty: { type: 'number' },
