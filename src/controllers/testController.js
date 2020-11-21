@@ -39,8 +39,8 @@ exports.updateTest = async (req, reply) => {
     try {
         const id = req.params.id
         const test = req.body
-        const { ...updateData } = test
-        const update = await Test.findByIdAndUpdate(id, updateData, { new: true })
+        const {...updateData} = test
+        const update = await Test.findByIdAndUpdate(id, updateData, {new: true})
         return update
     } catch (err) {
         throw boom.boomify(err)
@@ -63,7 +63,34 @@ exports.getTestByIdAndTheme = async (req, reply) => {
         const _id = req.params.id
         const _theme_id = req.params.theme_id
 
-        return await Test.findOne({_id, theme_id: _theme_id})
+        let tests = await Test.findOne({theme_id: _theme_id, _id})
+        tests.easy_questions = await Promise.all(tests.easy_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.medium_questions = await Promise.all(tests.medium_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+        tests.difficult_questions = await Promise.all(tests.difficult_questions.map(async (q) => {
+            const que = await Question.findById(q._id)
+
+            if (que != null) {
+                que.right_answers = undefined
+                return que
+            }
+        }))
+
+        return tests
+
     } catch (err) {
         throw boom.boomify(err)
     }
