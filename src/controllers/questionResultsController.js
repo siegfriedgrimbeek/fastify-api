@@ -30,13 +30,18 @@ exports.addQuestionResults = async (req, reply) => {
 
         let existQuestion = await QuestionResults.findOne({theme_id, user_id, test_id, _id: question})
 
+        let currentQuestionResult;
         if (existQuestion == null) {
             const questionResult = new QuestionResults(req.body)
-
-            return await questionResult.save()
+            currentQuestionResult = await questionResult.save()
         } else {
-            return await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
+            currentQuestionResult = await QuestionResults.findByIdAndUpdate(existQuestion._id, {user_answers}, { new: true })
         }
+
+        console.log(currentQuestionResult)
+
+
+
     } catch (err) {
         throw boom.boomify(err)
     }

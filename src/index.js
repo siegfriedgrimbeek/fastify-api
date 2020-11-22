@@ -20,6 +20,7 @@ fastify.register(require('fastify-swagger'), swagger.options)
 
 // Register CORS
 fastify.register(require('fastify-cors'))
+fastify.options('*', (request, reply) => { reply.send() })
 
 // Connect to DB
 mongoose.connect("mongodb+srv://BCSAdmin:YA35kUEzURnayYf@cluster0.mrofz.mongodb.net/scat", {useNewUrlParser: true, useUnifiedTopology: true})
